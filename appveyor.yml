@@ -4,8 +4,9 @@ environment:
     PYTHON: "C:\\Python37"
 
     CONAN_REFERENCE: "lua/5.1.5"
-    CONAN_USERNAME: "konradnotantoo"
+    CONAN_USERNAME: "utopia"
     CONAN_LOGIN_USERNAME: "konradnotantoo"
+    CONAN_STABLE_BRANCH_PATTERN: "release/*"
     CONAN_CHANNEL: "testing"
     CONAN_UPLOAD: "https://api.bintray.com/conan/konradnotantoo/utopia"
 
