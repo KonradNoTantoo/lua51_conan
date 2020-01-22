@@ -34,7 +34,7 @@ class LuaConan(ConanFile):
         zip_name = "lua-%s.tar.gz" % self.version
         tarball_path = "https://www.lua.org/ftp/{}.tar.gz".format(self.folder_name)
         tools.get(tarball_path)
-        if self.settings.compiler == "Visual Studio" and self.settings.arch != "x86":
+        if self.settings.compiler == "Visual Studio":
             self.copy_file_to_source("CMakeLists.txt")
 
     def build(self):
