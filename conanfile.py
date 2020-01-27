@@ -51,8 +51,7 @@ class LuaConan(ConanFile):
         else:
             with tools.chdir(self.folder_name):
                 env_build = AutoToolsBuildEnvironment(self)
-                # env_build.configure() 
-                env_build.make()
+                env_build.make(target=str(self.settings.os).lower())
 
     def package(self):
         src_path = os.path.join(self.folder_name, "src")
