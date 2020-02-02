@@ -50,7 +50,7 @@ class LuaConan(ConanFile):
         tools.get(tarball_path)
         if self.settings.compiler == "Visual Studio":
             self.copy_file_to_source("CMakeLists.txt")
-        elif bool(self.options.fPIC):
+        elif self.settings.arch != "x86" and bool(self.options.fPIC):
             # Makefiles ignore anything passed on make command line
             tools.replace_in_file("{}/src/Makefile".format(self.folder_name), "CFLAGS= ", "CFLAGS= -fPIC ")
 
