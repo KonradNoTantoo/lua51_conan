@@ -18,20 +18,31 @@ class LuaConan(ConanFile):
     exports_sources = "CMakeLists.txt", "windows/*"
     generators = "cmake"
 
+
     def copy_file_to_source(self, name):
         file_content = tools.load(name)
         path_to_source = os.path.join(self.source_folder, self.folder_name, name)
         tools.save(path_to_source, file_content)
 
+
     def requirements(self):
         if self.settings.os != "Windows" and self.options.build_interpreter:
             self.requires("readline/7.0@bincrafters/stable", private=True)
 
+
+    def config_options(self):
+        # shared build is only available using VS
+        if self.settings.compiler != 'Visual Studio':
+            del self.options.shared
+
+
     def configure(self):
         del self.settings.compiler.libcxx
         del self.settings.compiler.cppstd
-        if self.settings.compiler == 'Visual Studio':
+        # fPIC isn't needed either when using VS or on x86 platforms with other compilers
+        if self.settings.compiler == 'Visual Studio' or self.settings.arch == "x86":
             del self.options.fPIC
+
 
     def source(self):
         zip_name = "lua-%s.tar.gz" % self.version
@@ -82,6 +93,7 @@ class LuaConan(ConanFile):
         self.copy("*.a", dst="lib", keep_path=False)
         self.copy("*.so*", dst="lib", keep_path=False)
         self.copy("*.dylib*", dst="lib", keep_path=False)
+
 
     def package_info(self):
         self.cpp_info.libs = ["lua"]
