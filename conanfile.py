@@ -97,3 +97,5 @@ class LuaConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["lua"]
+        if self.settings.compiler != "Visual Studio":
+            self.cpp_info.system_libs = ["dl", "m"]
