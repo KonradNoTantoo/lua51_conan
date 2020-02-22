@@ -1,4 +1,4 @@
-from conans import ConanFile, CMake, AutoToolsBuildEnvironment, tools
+from conans import ConanFile, CMake, tools
 import os
 
 
@@ -9,13 +9,13 @@ class LuaConan(ConanFile):
     license = "MIT"
     author = "konrad.no.tantoo"
     url = "https://github.com/KonradNoTantoo/lua51_conan"
-    exports = "CMakeLists.txt"
     description = "Lua is a powerful, efficient, lightweight, embeddable scripting language."
     topics = ("language", "scripting", "embedded")
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False], "fPIC": [True, False], "build_interpreter": [True, False], "build_compiler": [True, False]}
-    default_options = "shared=True", "fPIC=True", "build_interpreter=False", "build_compiler=False"
-    exports_sources = "CMakeLists.txt", "windows/*"
+    default_options = {"shared": True, "fPIC": True, "build_interpreter": False, "build_compiler": False}
+    exports = "CMakeLists.txt"
+    exports_sources = "CMakeLists.txt"
     generators = "cmake"
 
 
@@ -30,12 +30,6 @@ class LuaConan(ConanFile):
             self.requires("readline/7.0@bincrafters/stable", private=True)
 
 
-    def config_options(self):
-        # shared build is only available using VS
-        if self.settings.compiler != 'Visual Studio':
-            del self.options.shared
-
-
     def configure(self):
         del self.settings.compiler.libcxx
         del self.settings.compiler.cppstd
@@ -48,28 +42,16 @@ class LuaConan(ConanFile):
         zip_name = "lua-%s.tar.gz" % self.version
         tarball_path = "https://www.lua.org/ftp/{}.tar.gz".format(self.folder_name)
         tools.get(tarball_path)
-        if self.settings.compiler == "Visual Studio":
-            self.copy_file_to_source("CMakeLists.txt")
-        elif self.settings.arch != "x86" and bool(self.options.fPIC):
-            # Makefiles ignore anything passed on make command line
-            tools.replace_in_file("{}/src/Makefile".format(self.folder_name), "CFLAGS= ", "CFLAGS= -fPIC ")
+        self.copy_file_to_source("CMakeLists.txt")
 
 
     def build(self):
-        if self.settings.compiler == "Visual Studio":
-            cmake = CMake(self)
-            if self.options.build_interpreter:
-                cmake.definitions["BUILD_INTERPRETER"] = "ON"
-            if self.options.build_compiler:
-                cmake.definitions["BUILD_COMPILER"] = "ON"
-            if self.options.shared:
-                cmake.definitions["SHARED"] = "ON"
-            cmake.configure(source_folder=self.folder_name)
-            cmake.build()
-        else:
-            with tools.chdir(self.folder_name):
-                env_build = AutoToolsBuildEnvironment(self)
-                env_build.make(target=str(self.settings.os).lower())
+        cmake = CMake(self)
+        cmake.definitions["BUILD_INTERPRETER"] = "ON" if self.options.build_interpreter else "OFF"
+        cmake.definitions["BUILD_COMPILER"] = "ON" if self.options.build_compiler else "OFF"
+        cmake.definitions["SHARED"] = "ON" if self.options.shared else "OFF"
+        cmake.configure(source_folder=self.folder_name)
+        cmake.build()
 
 
     def package(self):
@@ -96,6 +78,8 @@ class LuaConan(ConanFile):
 
 
     def package_info(self):
-        self.cpp_info.libs = ["lua"]
-        if self.settings.compiler != "Visual Studio":
+        if self.settings.compiler == "Visual Studio":
+            self.cpp_info.libs = ["lua"]
+        else:
+            self.cpp_info.libs = ["lua" if self.options.shared else "liblua.a"]
             self.cpp_info.system_libs = ["dl", "m"]

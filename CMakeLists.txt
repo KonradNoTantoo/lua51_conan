@@ -44,17 +44,6 @@ add_definitions(-DLUA_COMPAT_5_2)
 
 add_library(lua_objects OBJECT ${LUA_LIB_SOURCES})
 
-if(UNIX)
-  link_libraries(m)
-  target_compile_definitions(lua_objects
-    PUBLIC LUA_USE_LINUX
-  )
-  target_compile_definitions(lua
-    PUBLIC LUA_USE_LINUX
-  )
-endif(UNIX)
-
-
 if(${SHARED})
   add_library(lua SHARED $<TARGET_OBJECTS:lua_objects>)
 
@@ -69,6 +58,17 @@ if(${SHARED})
 else()
   add_library(lua STATIC $<TARGET_OBJECTS:lua_objects>)
 endif()
+
+if(UNIX)
+  link_libraries(m)
+  link_libraries(dl)
+  target_compile_definitions(lua_objects
+    PUBLIC LUA_USE_LINUX
+  )
+  target_compile_definitions(lua
+    PUBLIC LUA_USE_LINUX
+  )
+endif(UNIX)
 
 target_compile_definitions(lua_objects
   PUBLIC LUA_COMPAT_5_2
