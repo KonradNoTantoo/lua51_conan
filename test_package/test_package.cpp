@@ -11,7 +11,7 @@ extern "C"
 int main()
 {
 	int ret = EXIT_SUCCESS;
-    lua_State *L = lua_open();
+	lua_State *L = lua_open();
 
 	// Load the libraries
 	luaL_openlibs(L);
@@ -40,5 +40,5 @@ int main()
 
 	// Close lua
 	lua_close (L);
-    return 0;
+	return ret;
 }
