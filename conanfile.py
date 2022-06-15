@@ -27,7 +27,7 @@ class LuaConan(ConanFile):
 
     def requirements(self):
         if self.settings.os != "Windows" and self.options.build_interpreter:
-            self.requires("readline/7.0@bincrafters/stable", private=True)
+            self.requires("readline/8.0", private=True)
 
 
     def configure(self):
